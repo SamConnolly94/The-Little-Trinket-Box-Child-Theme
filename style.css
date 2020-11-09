@@ -1,0 +1,9 @@
+/*
+Theme Name: The Little Trinket Box
+Description: A child theme of Shop Isle tailored for use with the little trinket box.
+Author: Sam Connolly
+Author URI: https://thelittletrinketbox.com
+Version: 1.0
+Template: shop-isle
+*/
+@import url("../shop-isle/style.css");
