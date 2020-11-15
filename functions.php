@@ -40,10 +40,9 @@ function the_little_trinket_box_custom_option(){
     $id = $product->get_id();
     $customisable_product = get_post_meta( $id, 'customisable_text', true);
     $value = isset( $_POST['_custom_option' ] ) ? sanitize_text_field( $_POST['_custom_option'] ) : '';
-
     if ($customisable_product)
     {
-        printf( '<p><label>%s<input name="_custom_option" value="%s" /></label></p>', __( 'Text to customise with', 'the-little-trinket-box-plugin-textdomain' ), esc_attr( $value ) );
+        printf( '<table class="variations" cellspacing="0" style="margin-bottom: 10px;"><tbody><tr><td><label style="margin-right: 10px;" for="_custom_option">%s</label></td><td class="value"><input class="input-text text" name="_custom_option" value="%s"/></td></tr></tbody></table>', __( 'Custom text: ', 'the-little-trinket-box-plugin-textdomain' ), esc_attr( $value ) );    
     }
 }
 add_action( 'woocommerce_before_add_to_cart_button', 'the_little_trinket_box_custom_option', 9);
