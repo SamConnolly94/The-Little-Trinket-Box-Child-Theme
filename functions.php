@@ -40,6 +40,7 @@ function the_little_trinket_box_custom_option(){
     $id = $product->get_id();
     $customisable_product = get_post_meta( $id, 'customisable_text', true);
     $value = isset( $_POST['_custom_option' ] ) ? sanitize_text_field( $_POST['_custom_option'] ) : '';
+
     if ($customisable_product)
     {
         printf( '<p><label>%s<input name="_custom_option" value="%s" /></label></p>', __( 'Text to customise with', 'the-little-trinket-box-plugin-textdomain' ), esc_attr( $value ) );
@@ -91,10 +92,13 @@ add_filter( 'woocommerce_get_cart_item_from_session', 'the_little_trinket_box_ge
  * @param  array          $values The cart item values array.
  * @since 3.0.0
  */
+//
 function the_little_trinket_box_add_order_item_meta( $order_item, $cart_item_key, $values ) {
 
     if ( ! empty( $values['custom_option'] ) ) {
-    	$order_item->add_meta_data( 'custom_option', sanitize_text_field( $values[ 'mnm_container' ] ), true );       
+        $customised_text = sanitize_text_field( $values[ 'mnm_container' ] );
+        $order_item->add_meta_data( 'custom_option', $customised_text , true );
+        $order_item->update_meta_data( 'pa_custom-text', $customised_text );
     }
 
 }
@@ -160,14 +164,16 @@ function the_little_trinket_box_order_item_display_meta_key( $display_key, $meta
 }
 add_filter( 'woocommerce_order_item_display_meta_key', 'the_little_trinket_box_order_item_display_meta_key', 10, 3 );
 
-function the_little_trinket_box_before_order_itemmeta($display_key, $meta, $order_item){
-    
-    // I want to display the customisation option on the order page so that Hannah knows what to customise the order with. 
-    // I believe this is the correct place, but meta doesn't seem to contain the key for customisation (value is empty).
+if(!function_exists('the_little_trinket_box_add_values_to_order_item_meta'))
+{
+  function the_little_trinket_box_add_values_to_order_item_meta($item_id, $values)
+  {
+        global $woocommerce, $wpdb;
+        $user_custom_values = $values['custom_option'];
+        if(!empty($user_custom_values))
+        {
+            wc_add_order_item_meta($item_id,'Custom Text',$user_custom_values);  
+        }
+  }
 }
-add_action( 'woocommerce_before_order_itemmeta', 'the_little_trinket_box_before_order_itemmeta', 10, 3 );
-
-// function my_woocommerce_admin_order_item_values($_product, $item, $item_id = null) {
-    // This doesn't seem like the right place to add the customisation options to the item on the order page
-// }
-// add_action('woocommerce_admin_order_item_values', 'my_woocommerce_admin_order_item_values', 10, 3);
+add_action('woocommerce_add_order_item_meta','the_little_trinket_box_add_values_to_order_item_meta',1,2);
