@@ -136,8 +136,11 @@ add_action( 'woocommerce_before_add_to_cart_button', 'the_little_trinket_box_cus
  */
 function the_little_trinket_box_add_cart_item_data( $cart_item, $product_id ){
 
-    if( isset( $_POST['_custom_option'] ) ) {
-        $cart_item['custom_option'] = sanitize_text_field( $_POST[ '_custom_option' ] );
+    $customTextBoxCount = defined('MAX_NUM_CUSTOM_TEXT_BOXES') ? constant('MAX_NUM_CUSTOM_TEXT_BOXES') : 0;
+    for ($i = 1; $i <= $customTextBoxCount; $i++) {
+        if( isset( $_POST['_custom_option_' . strval($i)] ) ) {
+            $cart_item['custom_option_' . strval($i)] = sanitize_text_field( $_POST[ '_custom_option_' . strval($i) ] );
+        }
     }
 
     return $cart_item;
@@ -153,13 +156,15 @@ add_filter( 'woocommerce_add_cart_item_data', 'the_little_trinket_box_add_cart_i
  * @return array
  */
 function the_little_trinket_box_get_cart_item_from_session( $cart_item, $values ) {
-
-    if ( isset( $values['custom_option'] ) ){
-        $cart_item['custom_option'] = $values['custom_option'];
+    $customTextBoxCount = defined('MAX_NUM_CUSTOM_TEXT_BOXES') ? constant('MAX_NUM_CUSTOM_TEXT_BOXES') : 0;
+    for ($i = 1; $i <= $customTextBoxCount; $i++) {
+        if( isset( $values['custom_option_' . strval($i)] ) ) {
+            $customOptionVal = $values['custom_option_' . strval($i)];
+            $cart_item['custom_option_' . strval($i)] = $customOptionVal;
+        }
     }
 
     return $cart_item;
-
 }
 add_filter( 'woocommerce_get_cart_item_from_session', 'the_little_trinket_box_get_cart_item_from_session', 20, 2 );
 
@@ -173,13 +178,14 @@ add_filter( 'woocommerce_get_cart_item_from_session', 'the_little_trinket_box_ge
  */
 //
 function the_little_trinket_box_add_order_item_meta( $order_item, $cart_item_key, $values ) {
-
-    if ( ! empty( $values['custom_option'] ) ) {
-        $customised_text = sanitize_text_field( $values[ 'mnm_container' ] );
-        $order_item->add_meta_data( 'custom_option', $customised_text , true );
-        $order_item->update_meta_data( 'pa_custom-text', $customised_text );
+    $customTextBoxCount = defined('MAX_NUM_CUSTOM_TEXT_BOXES') ? constant('MAX_NUM_CUSTOM_TEXT_BOXES') : 0;
+    for ($i = 1; $i <= $customTextBoxCount; $i++) {
+        if ( ! empty( $values['custom_option_' . strval($i)] ) ) {
+            $customised_text = sanitize_text_field( $values['mnm_container']);
+            $order_item->add_meta_data( 'custom_option_' . strval($i), $customised_text , true );
+            $order_item->update_meta_data( 'pa_custom-text-' . strval($i), $customised_text );
+        }
     }
-
 }
 add_action( 'woocommerce_checkout_create_order_line_item', 'the_little_trinket_box_add_order_item_meta', 10, 3 );
 
@@ -192,17 +198,20 @@ add_action( 'woocommerce_checkout_create_order_line_item', 'the_little_trinket_b
  */
 function the_little_trinket_box_get_item_data( $other_data, $cart_item ) {
 
-    if ( isset( $cart_item['custom_option'] ) ){
 
-        $other_data[] = array(
-            'key' => __( 'Your custom text', 'the-little-trinket-box-plugin-textdomain' ),
-            'display' => sanitize_text_field( $cart_item['custom_option'] )
-        );
-
+    $customTextBoxCount = defined('MAX_NUM_CUSTOM_TEXT_BOXES') ? constant('MAX_NUM_CUSTOM_TEXT_BOXES') : 0;
+    // TODO: 
+    // Change below to grab the correct label to display
+    for ($i = 1; $i <= $customTextBoxCount; $i++) {
+        if ( isset( $cart_item['custom_option_' . strval($i)] ) ){
+            $other_data[] = array(
+                'key' => __( 'Your custom text', 'the-little-trinket-box-plugin-textdomain' ),
+                'display' => sanitize_text_field( $cart_item['custom_option_' . strval($i)] )
+            );
+        }
     }
 
     return $other_data;
-
 }
 add_filter( 'woocommerce_get_item_data', 'the_little_trinket_box_get_item_data', 10, 2 );
 
@@ -216,8 +225,11 @@ add_filter( 'woocommerce_get_item_data', 'the_little_trinket_box_get_item_data',
  */
 function the_little_trinket_box_order_item_product( $product, $order_item ){
 
-    if( $order_item->get_meta( 'custom_option' ) ){
-        $product->add_meta_data( 'custom_option', $order_item->get_meta( 'custom_option' ), true );
+    $customTextBoxCount = defined('MAX_NUM_CUSTOM_TEXT_BOXES') ? constant('MAX_NUM_CUSTOM_TEXT_BOXES') : 0;
+    for ($i = 1; $i <= $customTextBoxCount; $i++) {
+        if( $order_item->get_meta( 'custom_option_' . strval($i) ) ){
+            $product->add_meta_data( 'custom_option_' . strval($i), $order_item->get_meta( 'custom_option_' . strval($i) ), true );
+        }
     }
 
     return $product;
@@ -234,10 +246,12 @@ add_filter( 'woocommerce_order_item_product', 'the_little_trinket_box_order_item
  * @return string
  */
 function the_little_trinket_box_order_item_display_meta_key( $display_key, $meta, $order_item ){
-    if( $meta->key == 'custom_option' ){
-        $display_key =  __( 'Your custom text', 'the-little-trinket-box-plugin-textdomain' );
+    $customTextBoxCount = defined('MAX_NUM_CUSTOM_TEXT_BOXES') ? constant('MAX_NUM_CUSTOM_TEXT_BOXES') : 0;
+    for ($i = 1; $i <= $customTextBoxCount; $i++) {
+        if( $meta->key == 'custom_option_' . strval($i) ){
+            $display_key =  __( 'Your custom text', 'the-little-trinket-box-plugin-textdomain' );
+        }
     }
-
     return $display_key;
 
 }
@@ -247,12 +261,16 @@ if(!function_exists('the_little_trinket_box_add_values_to_order_item_meta'))
 {
   function the_little_trinket_box_add_values_to_order_item_meta($item_id, $values)
   {
-        global $woocommerce, $wpdb;
-        $user_custom_values = $values['custom_option'];
+    global $woocommerce, $wpdb;
+    
+    $customTextBoxCount = defined('MAX_NUM_CUSTOM_TEXT_BOXES') ? constant('MAX_NUM_CUSTOM_TEXT_BOXES') : 0;
+    for ($i = 1; $i <= $customTextBoxCount; $i++) {
+        $user_custom_values = $values['custom_option_' . strval($i)];
         if(!empty($user_custom_values))
         {
             wc_add_order_item_meta($item_id,'Custom Text',$user_custom_values);  
         }
+    }
   }
 }
 add_action('woocommerce_add_order_item_meta','the_little_trinket_box_add_values_to_order_item_meta',1,2);
