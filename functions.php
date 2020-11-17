@@ -111,7 +111,6 @@ function the_little_trinket_box_custom_option(){
         $customTextEnabled = get_post_meta($id, 'custom_text_enabled_' . strval($i), true) == "yes" ? true : false;
         if ($customTextEnabled) {
             $customLabel = get_post_meta($id, 'custom_text_field_label_' . strval($i), true);
-            
         }
     }
 
@@ -122,8 +121,15 @@ function the_little_trinket_box_custom_option(){
         if ($customTextEnabled) {
             $customTextboxExists = true;
             $customLabel = get_post_meta($id, 'custom_text_field_label_' . strval($i), true);
+            $optional = get_post_meta($id, 'custom_text_is_optional_' . strval($i), true) == "yes" ? true : false; 
+            
             $maxlen = get_post_meta($id, 'custom_text_field_max_length_' . strval($i), true);
-            $tableHtml .= '<tr><td><label style="margin-right: 10px;" for="_custom_option_' . strval($i) . '">' . $customLabel . '</label></td><td class="value"><input class="input-text text" name="_custom_option_' . strval($i).'" value="' . esc_attr( $values[$i] ) . '" maxlength="' . $maxlen .'"/></td></tr>';
+            $tableHtml .= '<tr><td><label style="margin-right: 10px;" for="_custom_option_' . strval($i) . '">' . $customLabel . '</label></td><td class="value"><input class="input-text text" name="_custom_option_' . strval($i).'" value="' . esc_attr( $values[$i] ) . '" maxlength="' . $maxlen .'"';
+            if (!$optional)
+            {
+                $tableHtml .= 'required';
+            }
+            $tableHtml .= '/></td></tr>';
         }
     }
     $tableHtml .= '</tbody></table>';
@@ -131,6 +137,35 @@ function the_little_trinket_box_custom_option(){
 
 }
 add_action( 'woocommerce_before_add_to_cart_button', 'the_little_trinket_box_custom_option', 9);
+
+/**
+ * Validate the product that has been submitted
+ */
+function the_little_trinket_box_filter_add_to_cart_validation( $passed, $product_id, $quantity ) {
+    $customTextBoxCount = defined('MAX_NUM_CUSTOM_TEXT_BOXES') ? constant('MAX_NUM_CUSTOM_TEXT_BOXES') : 0;
+    for ($i = 1; $i <= $customTextBoxCount; $i++) {
+        $enabledKey = 'custom_text_enabled_' . strval($i);
+        $customTextEnabled = get_post_meta($product_id, $enabledKey, true) == "yes" ? true : false;
+        if ($customTextEnabled)
+        {
+            $product = wc_get_product( $product_id );
+            $optionalKey = 'custom_text_is_optional_' . strval($i);
+            $optional = get_post_meta($product_id, $optionalKey, true) == "yes" ? true : false; 
+            $labelKey = 'custom_text_field_label_' . strval($i);
+            $label = get_post_meta($product_id, $labelKey, true);
+            $customOption = '_custom_option_' . strval($i);
+            if (!$optional && empty($_POST[ $customOption ]))
+            {
+                $errMsg = 'Please enter an option in the customisable field labelled \'' . $label . '\'.';
+                wc_add_notice($errMsg, 'error' );
+                $passed = false;
+            }
+        }
+    }
+    return $passed;
+}
+add_filter( 'woocommerce_add_to_cart_validation', 'the_little_trinket_box_filter_add_to_cart_validation', 10, 3 );
+
 
 /**
  * Add custom data to the cart item
@@ -143,14 +178,17 @@ function the_little_trinket_box_add_cart_item_data( $cart_item, $product_id ){
     $customTextBoxCount = defined('MAX_NUM_CUSTOM_TEXT_BOXES') ? constant('MAX_NUM_CUSTOM_TEXT_BOXES') : 0;
     for ($i = 1; $i <= $customTextBoxCount; $i++) {
         if( isset( $_POST['_custom_option_' . strval($i)] ) ) {
-            $customLabel = get_post_meta($product_id, 'custom_text_field_label_' . strval($i), true);
-            $customOption = sanitize_text_field( $_POST[ '_custom_option_' . strval($i) ] );
-            $cart_item['custom_option_' . strval($i)] = [$customLabel, $customOption];
+            $optional = get_post_meta($product_id, 'custom_text_is_optional_' . strval($i), true);   
+            if (!$optional || ($optional && isset($_POST[ '_custom_option_' . strval($i) ])))
+            {
+                $customLabel = get_post_meta($product_id, 'custom_text_field_label_' . strval($i), true);
+                $customOption = sanitize_text_field( $_POST[ '_custom_option_' . strval($i) ] );
+                $cart_item['custom_option_' . strval($i)] = [$customLabel, $customOption];
+            }
         }            
     }
 
     return $cart_item;
-
 }
 add_filter( 'woocommerce_add_cart_item_data', 'the_little_trinket_box_add_cart_item_data', 10, 2 );
 
