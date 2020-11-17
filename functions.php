@@ -108,6 +108,11 @@ function the_little_trinket_box_custom_option(){
         $customOption = '_custom_option_' . strval($i);
         $valueToAdd = isset( $_POST[$customOption] ) ? sanitize_text_field( $_POST[$customOption] ) : '';
         array_push($values, $valueToAdd);
+        $customTextEnabled = get_post_meta($id, 'custom_text_enabled_' . strval($i), true) == "yes" ? true : false;
+        if ($customTextEnabled) {
+            $customLabel = get_post_meta($id, 'custom_text_field_label_' . strval($i), true);
+            
+        }
     }
 
     $customTextboxExists = false;
@@ -135,12 +140,13 @@ add_action( 'woocommerce_before_add_to_cart_button', 'the_little_trinket_box_cus
  * @return array
  */
 function the_little_trinket_box_add_cart_item_data( $cart_item, $product_id ){
-
     $customTextBoxCount = defined('MAX_NUM_CUSTOM_TEXT_BOXES') ? constant('MAX_NUM_CUSTOM_TEXT_BOXES') : 0;
     for ($i = 1; $i <= $customTextBoxCount; $i++) {
         if( isset( $_POST['_custom_option_' . strval($i)] ) ) {
-            $cart_item['custom_option_' . strval($i)] = sanitize_text_field( $_POST[ '_custom_option_' . strval($i) ] );
-        }
+            $customLabel = get_post_meta($product_id, 'custom_text_field_label_' . strval($i), true);
+            $customOption = sanitize_text_field( $_POST[ '_custom_option_' . strval($i) ] );
+            $cart_item['custom_option_' . strval($i)] = [$customLabel, $customOption];
+        }            
     }
 
     return $cart_item;
@@ -158,9 +164,10 @@ add_filter( 'woocommerce_add_cart_item_data', 'the_little_trinket_box_add_cart_i
 function the_little_trinket_box_get_cart_item_from_session( $cart_item, $values ) {
     $customTextBoxCount = defined('MAX_NUM_CUSTOM_TEXT_BOXES') ? constant('MAX_NUM_CUSTOM_TEXT_BOXES') : 0;
     for ($i = 1; $i <= $customTextBoxCount; $i++) {
-        if( isset( $values['custom_option_' . strval($i)] ) ) {
-            $customOptionVal = $values['custom_option_' . strval($i)];
-            $cart_item['custom_option_' . strval($i)] = $customOptionVal;
+        if( isset( $values['custom_option_' . strval($i)]) ) {
+            $customLabelVal = $values['custom_option_' . strval($i)][0];
+            $customOptionVal = $values['custom_option_' . strval($i)][1];
+            $cart_item['custom_option_' . strval($i)] = [$customLabelVal, $customOptionVal];
         }
     }
 
@@ -181,8 +188,11 @@ function the_little_trinket_box_add_order_item_meta( $order_item, $cart_item_key
     $customTextBoxCount = defined('MAX_NUM_CUSTOM_TEXT_BOXES') ? constant('MAX_NUM_CUSTOM_TEXT_BOXES') : 0;
     for ($i = 1; $i <= $customTextBoxCount; $i++) {
         if ( ! empty( $values['custom_option_' . strval($i)] ) ) {
+            echo "Add order item meta";
+            print_r($values);
+            $customised_label = $values['custom_option_' . strval($i)][0];
             $customised_text = sanitize_text_field( $values['mnm_container']);
-            $order_item->add_meta_data( 'custom_option_' . strval($i), $customised_text , true );
+            $order_item->add_meta_data( 'custom_option_' . strval($i), [$customised_label, $customised_text], true );
             $order_item->update_meta_data( 'pa_custom-text-' . strval($i), $customised_text );
         }
     }
@@ -197,16 +207,14 @@ add_action( 'woocommerce_checkout_create_order_line_item', 'the_little_trinket_b
  * @return array
  */
 function the_little_trinket_box_get_item_data( $other_data, $cart_item ) {
-
-
     $customTextBoxCount = defined('MAX_NUM_CUSTOM_TEXT_BOXES') ? constant('MAX_NUM_CUSTOM_TEXT_BOXES') : 0;
-    // TODO: 
-    // Change below to grab the correct label to display
     for ($i = 1; $i <= $customTextBoxCount; $i++) {
+        // Called
         if ( isset( $cart_item['custom_option_' . strval($i)] ) ){
+            $label = $cart_item['custom_option_' . strval($i)][0];
             $other_data[] = array(
-                'key' => __( 'Your custom text', 'the-little-trinket-box-plugin-textdomain' ),
-                'display' => sanitize_text_field( $cart_item['custom_option_' . strval($i)] )
+                'key' => __(  $label, 'the-little-trinket-box-plugin-textdomain' ),
+                'display' => sanitize_text_field( $cart_item['custom_option_' . strval($i)][1] )
             );
         }
     }
@@ -227,8 +235,10 @@ function the_little_trinket_box_order_item_product( $product, $order_item ){
 
     $customTextBoxCount = defined('MAX_NUM_CUSTOM_TEXT_BOXES') ? constant('MAX_NUM_CUSTOM_TEXT_BOXES') : 0;
     for ($i = 1; $i <= $customTextBoxCount; $i++) {
-        if( $order_item->get_meta( 'custom_option_' . strval($i) ) ){
-            $product->add_meta_data( 'custom_option_' . strval($i), $order_item->get_meta( 'custom_option_' . strval($i) ), true );
+        if( !empty($order_item->get_meta( 'custom_option_' . strval($i)) ) ){
+            $label = $order_item->get_meta( 'custom_option_' . strval($i) )[0];
+            $customText = $order_item->get_meta( 'custom_option_' . strval($i) )[1];
+            $product->add_meta_data( 'custom_option_' . strval($i),[$label, $customText], true );
         }
     }
 
@@ -249,7 +259,8 @@ function the_little_trinket_box_order_item_display_meta_key( $display_key, $meta
     $customTextBoxCount = defined('MAX_NUM_CUSTOM_TEXT_BOXES') ? constant('MAX_NUM_CUSTOM_TEXT_BOXES') : 0;
     for ($i = 1; $i <= $customTextBoxCount; $i++) {
         if( $meta->key == 'custom_option_' . strval($i) ){
-            $display_key =  __( 'Your custom text', 'the-little-trinket-box-plugin-textdomain' );
+            $label = $meta['custom_option_' . strval($i)][0];
+            $display_key =  __( $label, 'the-little-trinket-box-plugin-textdomain' );
         }
     }
     return $display_key;
@@ -265,10 +276,11 @@ if(!function_exists('the_little_trinket_box_add_values_to_order_item_meta'))
     
     $customTextBoxCount = defined('MAX_NUM_CUSTOM_TEXT_BOXES') ? constant('MAX_NUM_CUSTOM_TEXT_BOXES') : 0;
     for ($i = 1; $i <= $customTextBoxCount; $i++) {
-        $user_custom_values = $values['custom_option_' . strval($i)];
+        $user_custom_label = $values['custom_option_' . strval($i)][0];
+        $user_custom_values = $values['custom_option_' . strval($i)][1];
         if(!empty($user_custom_values))
         {
-            wc_add_order_item_meta($item_id,'Custom Text',$user_custom_values);  
+            wc_add_order_item_meta($item_id, $user_custom_label, $user_custom_values);  
         }
     }
   }
