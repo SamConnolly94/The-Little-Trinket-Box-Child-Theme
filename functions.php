@@ -122,12 +122,17 @@ function the_little_trinket_box_custom_option(){
             $customTextboxExists = true;
             $customLabel = get_post_meta($id, 'custom_text_field_label_' . strval($i), true);
             $optional = get_post_meta($id, 'custom_text_is_optional_' . strval($i), true) == "yes" ? true : false; 
-            
+            $allowSymbols = get_post_meta($id, 'custom_text_field_allow_symbols_' . strval($i), true) == "yes" ? true : false; 
+
             $maxlen = get_post_meta($id, 'custom_text_field_max_length_' . strval($i), true);
             $tableHtml .= '<tr><td><label style="margin-right: 10px;" for="_custom_option_' . strval($i) . '">' . $customLabel . '</label></td><td class="value"><input class="input-text text" name="_custom_option_' . strval($i).'" value="' . esc_attr( $values[$i] ) . '" maxlength="' . $maxlen .'"';
             if (!$optional)
             {
-                $tableHtml .= 'required';
+                $tableHtml .= 'required ';
+            }
+            if (!$allowSymbols)
+            {
+                $tableHtml .= 'pattern=[A-Za-z0-9] title="No special characters allowed"';
             }
             $tableHtml .= '/></td></tr>';
         }
@@ -160,12 +165,23 @@ function the_little_trinket_box_filter_add_to_cart_validation( $passed, $product
                 wc_add_notice($errMsg, 'error' );
                 $passed = false;
             }
+            $allowSymbolsKey = 'custom_text_field_allow_symbols_' . strval($i);
+            $allowSymbols = get_post_meta($product_id, $allowSymbolsKey, true) == "yes" ? true : false; 
+            if (!$allowSymbols && !empty($_POST[ $customOption ] && _s_has_special_chars($_POST[ $customOption ])))
+            {
+                $errMsg = 'Value for \'' . $label . '\' cannot contain special characters.';
+                wc_add_notice($errMsg, 'error' );
+                $passed = false;
+            }
         }
     }
     return $passed;
 }
 add_filter( 'woocommerce_add_to_cart_validation', 'the_little_trinket_box_filter_add_to_cart_validation', 10, 3 );
 
+function _s_has_special_chars( $string ) {
+    return preg_match('/[^a-zA-Z\d]/', $string);
+}
 
 /**
  * Add custom data to the cart item
