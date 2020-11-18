@@ -172,6 +172,14 @@ function the_little_trinket_box_filter_add_to_cart_validation( $passed, $product
                 $errMsg = 'Value for \'' . $label . '\' cannot contain special characters.';
                 wc_add_notice($errMsg, 'error' );
                 $passed = false;
+            }            
+            $maxCharsKey = 'custom_text_field_max_length_' . strval($i);
+            $maxChars = intval(get_post_meta($product_id, $maxCharsKey, true)); 
+            if (strlen($_POST[ $customOption ]) > $maxChars)
+            {
+                $errMsg = 'Value for \'' . $label . '\' is longer than the max length of \'' . strval($maxChars) . '\'.';
+                wc_add_notice($errMsg, 'error' );
+                $passed = false;
             }
         }
     }
