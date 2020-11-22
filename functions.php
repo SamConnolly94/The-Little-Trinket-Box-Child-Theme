@@ -132,7 +132,7 @@ function the_little_trinket_box_custom_option(){
             }
             if (!$allowSymbols)
             {
-                $tableHtml .= 'pattern=[A-Za-z0-9] title="No special characters allowed"';
+                $tableHtml .= 'pattern=[A-Za-z0-9]* title="No special characters allowed"';
             }
             $tableHtml .= '/></td></tr>';
         }
