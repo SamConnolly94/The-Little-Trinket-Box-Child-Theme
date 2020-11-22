@@ -125,7 +125,7 @@ function the_little_trinket_box_custom_option(){
             $allowSymbols = get_post_meta($id, 'custom_text_field_allow_symbols_' . strval($i), true) == "yes" ? true : false; 
 
             $maxlen = get_post_meta($id, 'custom_text_field_max_length_' . strval($i), true);
-            $tableHtml .= '<tr><td><label style="margin-right: 10px;" for="_custom_option_' . strval($i) . '">' . $customLabel . '</label></td><td class="value"><input class="input-text text" name="_custom_option_' . strval($i).'" value="' . esc_attr( $values[$i] ) . '" maxlength="' . $maxlen .'"';
+            $tableHtml .= '<tr><td><label style="margin-right: 10px;" for="_custom_option_' . strval($i) . '">' . $customLabel . '</label></td><td class="value"><input class="input-text text input optgroup textarea" name="_custom_option_' . strval($i).'" value="' . esc_attr( $values[$i] ) . '" maxlength="' . $maxlen .'"';
             if (!$optional)
             {
                 $tableHtml .= 'required ';
@@ -250,8 +250,6 @@ function the_little_trinket_box_add_order_item_meta( $order_item, $cart_item_key
     $customTextBoxCount = defined('MAX_NUM_CUSTOM_TEXT_BOXES') ? constant('MAX_NUM_CUSTOM_TEXT_BOXES') : 0;
     for ($i = 1; $i <= $customTextBoxCount; $i++) {
         if ( ! empty( $values['custom_option_' . strval($i)] ) ) {
-            echo "Add order item meta";
-            print_r($values);
             $customised_label = $values['custom_option_' . strval($i)][0];
             $customised_text = sanitize_text_field( $values['mnm_container']);
             $order_item->add_meta_data( 'custom_option_' . strval($i), [$customised_label, $customised_text], true );
