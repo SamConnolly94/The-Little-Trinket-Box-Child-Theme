@@ -361,6 +361,7 @@ function check_cn_has_been_accepted( $is_enabled ) {
 add_filter( 'facebook_for_woocommerce_integration_pixel_enabled', 'check_cn_has_been_accepted', 10, 1 );
 
 function my_custom_scripts() {
-    wp_enqueue_script( 'navbar-custom-js', get_stylesheet_directory_uri() . '/js/navbar.js', array( 'jquery' ), '', true );
+    wp_enqueue_script( 'navbar-custom', get_stylesheet_directory_uri() . '/js/navbar.js', array( 'jquery' ), '', true );
+    wp_enqueue_script( 'homepage-resizer', get_stylesheet_directory_uri() . '/js/homepage-resizer.js', array( 'jquery' ) );
 }
 add_action( 'wp_enqueue_scripts', 'my_custom_scripts' );
