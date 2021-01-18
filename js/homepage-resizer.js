@@ -27,17 +27,22 @@ jQuery(function ($) {
         }
 
         // Remove overlay from slides
-        var slide = document.querySelector('.slides');
-        console.log(slide);
-        var slides = slide.querySelectorAll('.bg-dark');
+        var slides = document.querySelector('.slides').childNodes;
         console.log(slides);
-        for (var i = 0; i < slides.length; slides++) {
-            var ele = $(slides[i]);
-            ele.removeClass('bg-dark'); 
-            ele.removeClass('bg-dark-30');
+        for (var i = 0; i < slides.length; i++) {
+            var ele = slides[i];
+            ele = $(ele);
+            try {
+                ele.removeClass('bg-dark');
+                ele.removeClass('bg-dark-30');
+            }
+            catch (e) {
+                // Don't really care, class probably wasn't attached
+            }
             ele.addClass('bg-light');
         }
         console.log("-------------------");
-        console.log(slide.querySelectorAll(':scope > .bg-dark'));
+        console.log(slides);
+        // console.log(slides.querySelectorAll(':scope > .bg-dark'));
     });
 });
