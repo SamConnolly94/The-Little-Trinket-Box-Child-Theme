@@ -7,3 +7,16 @@ Version: 1.0
 Template: shop-isle
 */
 @import url("../shop-isle/style.css");
+
+.page .navbar-custom {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.non-transparent-navbar-custom-properties {
+    color: black !important;
+}
+
+.container
+{
+    width: 99% !important;
+}

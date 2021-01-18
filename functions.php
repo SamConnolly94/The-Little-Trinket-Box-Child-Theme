@@ -359,3 +359,110 @@ function check_cn_has_been_accepted( $is_enabled ) {
     return false;
 }
 add_filter( 'facebook_for_woocommerce_integration_pixel_enabled', 'check_cn_has_been_accepted', 10, 1 );
+
+function the_little_trinket_box_customize_register( $wp_customize ) {
+    
+	// $selective_refresh = isset( $wp_customize->selective_refresh ) ? 'postMessage' : 'refresh';
+
+	// /* Banners section */
+
+	// $wp_customize->add_section(
+	// 	'shop_isle_child_banners_section',
+	// 	array(
+	// 		'title'    => __( 'PURPLE AKI Banners section', 'shop-isle-child' ),
+	// 		'priority' => apply_filters( 'shop_isle_section_priority', 15, 'shop_isle_child_banners_section' ),
+	// 	)
+	// );
+
+	// /* Hide banner */
+	// $wp_customize->add_setting(
+	// 	'shop_isle_child_banners_hide',
+	// 	array(
+	// 		'transport'         => $selective_refresh,
+	// 		'sanitize_callback' => 'shop_isle_sanitize_text',
+	// 	)
+	// );
+
+	// $wp_customize->add_control(
+	// 	'shop_isle_child_banners_hide',
+	// 	array(
+	// 		'type'     => 'checkbox',
+	// 		'label'    => __( 'Hide banners section?', 'shop-isle' ),
+	// 		'section'  => 'shop_isle_child_banners_section',
+	// 		'priority' => 1,
+	// 	)
+	// );
+
+	// $wp_customize->add_setting(
+	// 	'shop_isle_child_banners_title',
+	// 	array(
+	// 		'transport'         => $selective_refresh,
+	// 		'sanitize_callback' => 'shop_isle_sanitize_text',
+	// 	)
+	// );
+
+	// $wp_customize->add_control(
+	// 	'shop_isle_child_banners_title',
+	// 	array(
+	// 		'label'    => __( 'Section title', 'shop-isle' ),
+	// 		'section'  => 'shop_isle_child_banners_section',
+	// 		'priority' => 2,
+	// 	)
+	// );
+
+	// /* Banner */
+	// $wp_customize->add_setting(
+	// 	'shop_isle_child_banners',
+	// 	array(
+	// 		'transport'         => 'postMessage',
+	// 		'sanitize_callback' => 'shop_isle_sanitize_repeater',
+	// 		'default'           => json_encode(
+	// 			array(
+	// 				array(
+	// 					'image_url' => get_template_directory_uri() . '/assets/images/banner1.jpg',
+	// 					'link'      => '#',
+	// 				),
+	// 				array(
+	// 					'image_url' => get_template_directory_uri() . '/assets/images/banner2.jpg',
+	// 					'link'      => '#',
+	// 				),
+	// 				array(
+	// 					'image_url' => get_template_directory_uri() . '/assets/images/banner3.jpg',
+	// 					'link'      => '#',
+	// 				),
+	// 			)
+	// 		),
+	// 	)
+	// );
+	// $wp_customize->add_control(
+	// 	new Shop_Isle_Repeater_Controler(
+	// 		$wp_customize,
+	// 		'shop_isle_child_banners',
+	// 		array(
+	// 			'label'                         => __( 'Add new banner', 'shop-isle' ),
+	// 			'section'                       => 'shop_isle_banners_section',
+	// 			'active_callback'               => 'is_front_page',
+	// 			'priority'                      => 3,
+	// 			'shop_isle_image_control'       => true,
+	// 			'shop_isle_link_control'        => true,
+	// 			'shop_isle_text_control'        => false,
+	// 			'shop_isle_subtext_control'     => false,
+	// 			'shop_isle_label_control'       => false,
+	// 			'shop_isle_icon_control'        => false,
+	// 			'shop_isle_description_control' => false,
+	// 			'shop_isle_box_label'           => __( 'Banner', 'shop-isle' ),
+	// 			'shop_isle_box_add_label'       => __( 'Add new banner', 'shop-isle' ),
+	// 		)
+	// 	)
+	// );
+
+	// $wp_customize->get_section( 'shop_isle_child_banners_section' )->panel = 'shop_isle_front_page_sections';
+
+ }
+ add_action( 'customize_register', 'the_little_trinket_box_customize_register' );
+
+function my_custom_scripts() {
+    wp_enqueue_script( 'navbar-custom', get_stylesheet_directory_uri() . '/js/navbar.js', array( 'jquery' ), '', true );
+    wp_enqueue_script( 'homepage-resizer', get_stylesheet_directory_uri() . '/js/homepage-resizer.js', array( 'jquery' ), '', true );
+}
+add_action( 'wp_enqueue_scripts', 'my_custom_scripts' );
