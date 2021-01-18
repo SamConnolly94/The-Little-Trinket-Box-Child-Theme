@@ -12,23 +12,32 @@ jQuery(function ($) {
 
         //col-sm-5 col-md-2 col-lg-2
         var latest = document.querySelector('#latest');
-        console.log(latest);
         var latestContainer = latest.querySelector('.container');
-        console.log(latestContainer);
         var rows = latestContainer.querySelector(':scope > .multi-columns-row');
-        console.log(rows);
-
         var divs = rows.querySelectorAll(':scope > div');
-        console.log(divs);
         for (var i = 0; i < divs.length; i++) {
             $(divs[i]).removeClass('col-sm-6');
-            $(divs[i]).addClass('col-sm-5');
+            $(divs[i]).addClass('col-sm-3');
             
-            $(divs[i]).removeClass('col-md-3');
-            $(divs[i]).addClass('col-md-2');
+            // $(divs[i]).removeClass('col-md-3');
+            // $(divs[i]).addClass('col-md-2');
 
-            $(divs[i]).removeClass('col-lg-3');
-            $(divs[i]).addClass('col-lg-2');
+             $(divs[i]).removeClass('col-lg-3');
+             $(divs[i]).addClass('col-lg-2');
         }
+
+        // Remove overlay from slides
+        var slide = document.querySelector('.slides');
+        console.log(slide);
+        var slides = slide.querySelectorAll('.bg-dark');
+        console.log(slides);
+        for (var i = 0; i < slides.length; slides++) {
+            var ele = $(slides[i]);
+            ele.removeClass('bg-dark'); 
+            ele.removeClass('bg-dark-30');
+            ele.addClass('bg-light');
+        }
+        console.log("-------------------");
+        console.log(slide.querySelectorAll(':scope > .bg-dark'));
     });
 });
