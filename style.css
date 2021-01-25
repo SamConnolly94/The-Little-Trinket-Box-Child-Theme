@@ -1,22 +1,9 @@
 /*
-Theme Name: The Little Trinket Box
-Description: A child theme of Shop Isle tailored for use with the little trinket box.
+Theme Name: Treasures Untold
+Description: A child theme of Jayla tailored for use with Treasures Untold.
 Author: Sam Connolly
-Author URI: https://thelittletrinketbox.com
+Author URI: https://treasuresuntold.com
 Version: 1.0
-Template: shop-isle
+Template: jayla
 */
-@import url("../shop-isle/style.css");
-
-.page .navbar-custom {
-    background-color: rgba(255, 255, 255, 0.9) !important;
-}
-
-.non-transparent-navbar-custom-properties {
-    color: black !important;
-}
-
-.container
-{
-    width: 99% !important;
-}
+@import url("../jayla/style.css");
